@@ -1,0 +1,73 @@
+/**
+ ***********************************************
+ *
+ * Instagramのfeedを表示する
+ * @category 	Application of AZLINK.
+ * @author 		Norio Murata <nori@azlink.jp>
+ * @copyright 	2010- AZLINK. <https://azlink.jp>
+ * @final 		2020.03.17
+ *
+ ***********************************************
+ */
+(function($) {
+
+	const pluginName = 'instaFeed';
+	let options;
+
+	const methods = {
+		init: function(params) {
+			options = $.extend({
+        igID: 0, // InstagramビジネスアカウントID
+        count: 0, // 最大表示件数
+        token: '', // 第三トークン,
+        elem: this
+			}, params);
+
+      if (!options.igID || !options.token) return false;
+      if (options.count) options.count = 5;
+
+      methods.run.apply(this);
+
+			return this;
+		},
+		run: function() {
+      $.ajax({
+    		type: 'GET',
+    		url: 'https://graph.facebook.com/v3.0/' + options.igID + '?fields=name%2Cmedia.limit(' + options.count + ')%7Bcaption%2Clike_count%2Cmedia_url%2Cpermalink%2Ctimestamp%2Cusername%7D&access_token=' + options.token,
+    		dataType: 'json',
+        cache: false,
+        beforeSend: function() {
+        }
+      }).done(function(data) {
+        // console.log(data)
+        if (data.media.data.length > 1) {
+          let src = '';
+          const insta = data.media.data;
+          for (let i = 0; i < insta.length; i++) {
+            src += '<div class="instaItem"><a href="' + insta[i].permalink + '" target="_blank"><img src="' + insta[i].media_url + '"></a></div>';
+          }
+          options.elem.append(src);
+        }
+      });
+
+			return this;
+		},
+		destroy: function() {
+			$(elem).empty();
+
+      return this;
+		}
+	};
+
+	$.fn[pluginName] = function(method) {
+		if ( methods[method] ) {
+			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+		} else if (typeof method === 'object' || ! method) {
+			return methods.init.apply(this, arguments);
+		} else {
+			$.error('Method ' + method + ' does not exist on jQuery.' + pluginName);
+			return this;
+		}
+	};
+
+}(jQuery));
