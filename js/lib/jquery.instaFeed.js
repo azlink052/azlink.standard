@@ -5,7 +5,7 @@
  * @category 	Application of AZLINK.
  * @author 		Norio Murata <nori@azlink.jp>
  * @copyright 	2010- AZLINK. <https://azlink.jp>
- * @final 		2020.03.17
+ * @final 		2020.07.01
  *
  ***********************************************
  */
@@ -19,12 +19,13 @@
 			options = $.extend({
         igID: 0, // InstagramビジネスアカウントID
         count: 0, // 最大表示件数
-        token: '', // 第三トークン,
-        elem: this
+        token: '', // 第三トークン
+        elem: this,
+				onComplete: false
 			}, params);
 
       if (!options.igID || !options.token) return false;
-      if (options.count) options.count = 5;
+      if (!options.count) options.count = 5;
 
       methods.run.apply(this);
 
@@ -33,7 +34,7 @@
 		run: function() {
       $.ajax({
     		type: 'GET',
-    		url: 'https://graph.facebook.com/v3.0/' + options.igID + '?fields=name%2Cmedia.limit(' + options.count + ')%7Bcaption%2Clike_count%2Cmedia_url%2Cpermalink%2Ctimestamp%2Cusername%7D&access_token=' + options.token,
+    		url: 'https://graph.facebook.com/v3.0/' + options.igID + '?fields=name%2Cmedia.limit(' + options.count + ')%7Bcaption%2Clike_count%2Cmedia_url%2Cpermalink%2Cmedia_type%2Cthumbnail_url%2Ctimestamp%2Cusername%7D&access_token=' + options.token,
     		dataType: 'json',
         cache: false,
         beforeSend: function() {
@@ -44,9 +45,17 @@
           let src = '';
           const insta = data.media.data;
           for (let i = 0; i < insta.length; i++) {
-            src += '<div class="instaItem"><a href="' + insta[i].permalink + '" target="_blank"><img src="' + insta[i].media_url + '"></a></div>';
+						if (insta[i].media_type !== 'VIDEO') {
+							src += '<div class="instaItem"><a href="' + insta[i].permalink + '" target="_blank"><img src="' + insta[i].media_url + '"></a></div>';
+						} else {
+							src += '<div class="instaItem"><a href="' + insta[i].permalink + '" target="_blank"><img src="' + insta[i].thumbnail_url + '"></a></div>';
+						}
           }
           options.elem.append(src);
+
+					if (typeof options.onComplete === 'function') {
+		        options.onComplete();
+		      }
         }
       });
 
