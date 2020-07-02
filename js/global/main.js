@@ -6,7 +6,7 @@
  * @category 	Application of AZLINK.
  * @author 		Norio Murata <nori@azlink.jp>
  * @copyright 	2010- AZLINK. <https://azlink.jp>
- * @final 		2020.02.27
+ * @final 		2020.07.02
  *
  * ================================================
  */
@@ -56,6 +56,7 @@ $.params = {
   isChangeMode: false, // レスポンシブ状態が変更になったらtrue
   viewOriMode: 'landscape', // 画面モード landscape / portrait
   isDebug: false, // デバッグモード判定
+  rTimer: {}, // イベント制御用タイマー
   resizeTimer: false // イベント制御用タイマー
 };
 /**
@@ -103,9 +104,14 @@ $.main = {
     if (!opts.toggleSPTel === false) $.main.toggleSPTel();
     if (!opts.initDebug === false) $.main.initDebug();
     $(window).on('resize', function() {
-      if (!opts.checkRespMode === false) $.main.checkRespMode();
-      if (!opts.getMobile === false) $.main.getMobile();
-      if (!opts.toggleSPTel === false) $.main.toggleSPTel();
+      if ($.params.rTimer.resize !== false) {
+				clearTimeout($.params.rTimer.resize);
+			}
+			$.params.rTimer.resize = setTimeout(function() {
+        if (!opts.checkRespMode === false) $.main.checkRespMode();
+        if (!opts.getMobile === false) $.main.getMobile();
+        if (!opts.toggleSPTel === false) $.main.toggleSPTel();
+			}, 250);
   	});
     $(window).on('scroll', function() {
       if (!opts.pageTop === false) $.main.pageTop();
@@ -144,11 +150,11 @@ $.main = {
 		$.main.showDebug();
 
 		$(window).on('resize scroll', function() {
-			if ($.params.resizeTimer !== false) {
-				clearTimeout($.params.resizeTimer);
+			if ($.params.rTimer.debug !== false) {
+				clearTimeout($.params.rTimer.debug);
 			}
 
-			$.params.resizeTimer = setTimeout(function() {
+			$.params.rTimer.debug = setTimeout(function() {
 				$.main.showDebug();
 			}, 500);
 		});
@@ -297,13 +303,11 @@ $.main = {
 			});
 		}
 
-		var adjustTimer = false;
-
 		$(window).on('resize', function() {
-			if (adjustTimer !== false) {
-				clearTimeout($.params.resizeTimer);
+			if ($.params.rTimer.adjList !== false) {
+				clearTimeout($.params.rTimer.adjList);
 			}
-			adjustTimer = setTimeout(function() {
+			$.params.rTimer.adjList = setTimeout(function() {
 				adjust();
 			}, 500);
 		});
@@ -356,10 +360,10 @@ $.main = {
 		if ($.params.orgMode === null) {
 			$.params.orgMode = $.params.isRespMode ? 2 : 1;
 			$.params.currentMode = $.params.orgMode;
+      $.params.isChangeMode = $.params.orgMode !== $.params.currentMode ? true : false;
 		} else {
 			oldMode = $.params.currentMode;
 			$.params.currentMode = $.params.isRespMode ? 2 : 1;
-
 			$.params.isChangeMode = oldMode !== $.params.currentMode ? true : false;
 		}
 
@@ -446,7 +450,6 @@ $.main = {
 		params: {
 			r: 1,
 			h: new Array,
-			t: false,
 			w: 375,
 			bp: $.params.spBreakPoint,
 			to: 'left top'
@@ -462,11 +465,11 @@ $.main = {
 			}, 1500);
 
 			$(window).on('resize.rAdjust', function() {
-				if ($.main.ratioAdjust.t !== false) {
-					clearTimeout($.main.ratioAdjust.timer);
+				if ($.params.rTimer.ratio !== false) {
+					clearTimeout($.params.rTimer.ratio);
 				}
 
-				$.main.ratioAdjust.t = setTimeout(function() {
+				$.params.rTimer.ratio = setTimeout(function() {
 					$.main.ratioAdjust.adjust();
 
 					if ($.params.isChangeMode) {
