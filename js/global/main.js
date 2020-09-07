@@ -6,7 +6,7 @@
  * @category 	Application of AZLINK.
  * @author 		Norio Murata <nori@azlink.jp>
  * @copyright 	2010- AZLINK. <https://azlink.jp>
- * @final 		2020.07.02
+ * @final 		2020.09.07
  *
  * ================================================
  */
@@ -103,19 +103,36 @@ $.main = {
     if (!opts.pageTop === false) $.main.pageTop();
     if (!opts.toggleSPTel === false) $.main.toggleSPTel();
     if (!opts.initDebug === false) $.main.initDebug();
-    $(window).on('resize', function() {
-      if ($.params.rTimer.resize !== false) {
-				clearTimeout($.params.rTimer.resize);
+    $(window).on('resize.checkRespMode', function() {
+      if ($.params.rTimer.checkRespMode !== false) {
+				clearTimeout($.params.rTimer.checkRespMode);
 			}
-			$.params.rTimer.resize = setTimeout(function() {
+			$.params.rTimer.checkRespMode = setTimeout(function() {
         if (!opts.checkRespMode === false) $.main.checkRespMode();
-        if (!opts.getMobile === false) $.main.getMobile();
+			}, 250);
+  	});
+    $(window).on('resize.checkRespMode', function() {
+      if ($.params.rTimer.checkRespMode !== false) {
+				clearTimeout($.params.rTimer.checkRespMode);
+			}
+			$.params.rTimer.checkRespMode = setTimeout(function() {
+        if (!opts.checkRespMode === false) $.main.checkRespMode();
+			}, 250);
+  	});
+    $(window).on('resize.toggleSPTel', function() {
+      if ($.params.rTimer.toggleSPTel !== false) {
+				clearTimeout($.params.rTimer.toggleSPTel);
+			}
+			$.params.rTimer.toggleSPTel = setTimeout(function() {
         if (!opts.toggleSPTel === false) $.main.toggleSPTel();
 			}, 250);
   	});
-    $(window).on('scroll', function() {
-      if (!opts.pageTop === false) $.main.pageTop();
+    // console.log($._data($(window).get(0), "events"))
+    $(window).on('scroll.getScrPos', function() {
       if (!opts.getScrPos === false) $.main.getScrPos();
+  	});
+    $(window).on('scroll.pageTop', function() {
+      if (!opts.pageTop === false) $.main.pageTop();
   	});
   },
 	/**
