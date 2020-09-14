@@ -5,7 +5,7 @@
  * @category 	Application of AZLINK.
  * @author 		Norio Murata <nori@azlink.jp>
  * @copyright 	2010- AZLINK. <http://www.azlink.jp>
- * @final 		2020.07.25
+ * @final 		2020.09.14
  *
  ***********************************************
  */
@@ -31,12 +31,16 @@
       params[time].options = $.extend({
         isAuto: true,
         isLoop: true,
+        isChangeOpacity: true,
         pause: 5000,
         speed: 500,
         easing: 'easeInCubic',
         ctrl: false,
         pager: false,
         wrapper: params[time].elem.parent(),
+        activeIndexInt: 52,
+        oldIndexInt: 51,
+        etcIndexInt: 50,
         onSliderLoad: false,
         onSlideBefore: new Array, // oldIndex, newIndex
         onSlideAfter: new Array // oldIndex, newIndex
@@ -50,14 +54,14 @@
       });
       // console.log(params[time])
       params[time].elem.children().css({
-        opacity: 0,
-        zIndex: 50,
+        opacity: params[time].options.isChangeOpacity ? 0 : 1,
+        zIndex: params[time].options.etcIndexInt,
         position: 'absolute',
         left: 0,
         top: 0
       }).eq(params[time].current).css({
-        opacity: 1,
-        zIndex: 51
+        opacity: params[time].options.isChangeOpacity ? 1 : 1,
+        zIndex: params[time].options.activeIndexInt
       });
       if (params[time].options.ctrl) {
         params[time].options.wrapper.append('<div class="fs-ctrls"><div class="fs-ctrls-direction" /></div>');
@@ -89,7 +93,7 @@
       params[time].isAllowSlide = true;
       methods.slideAuto(params[time].time);
       if (typeof params[time].options.onSliderLoad === 'function') {
-        params[time].options.onSliderLoad();
+        params[time].options.onSliderLoad(time);
       }
 
       return this;
@@ -107,13 +111,16 @@
       if (params[thisTime].options.pager) methods.togglePager(thisTime);
       params[thisTime].elem.children().removeClass('slide-old slide-active');
       // console.log(oldIndex, newIndex)
+      params[thisTime].elem.children().css({
+        zIndex: params[time].options.etcIndexInt
+      });
       params[thisTime].elem.children().eq(oldIndex).css({
-        zIndex: 50
+        zIndex: params[time].options.oldIndexInt
       }).addClass('slide-old');
       params[thisTime].elem.children().eq(params[thisTime].current).css({
-        zIndex: 51
+        zIndex: params[time].options.activeIndexInt
       }).addClass('slide-active').velocity('stop').velocity({
-        opacity: 1
+        opacity: params[thisTime].options.isChangeOpacity ? 1 : 1
       }, {
         duration: params[thisTime].options.speed,
         complete: function() {
@@ -122,7 +129,7 @@
             params[thisTime].options.onSlideAfter(oldIndex, params[thisTime].current);
           }
           params[thisTime].elem.children().not(':eq(' + params[thisTime].current + ')').css({
-            opacity: 0
+            opacity: params[thisTime].options.isChangeOpacity ? 0 : 1
           });
           params[thisTime].isAllowSlide = true;
           if (params[thisTime].options.isLoop) {
@@ -153,7 +160,7 @@
       params[thisTime].isAllowSlide = params[thisTime].options.isAuto = true;
       params[thisTime].timer = setTimeout(function() {
         methods.change(thisTime);
-      }, params[time].options.pause);
+      }, params[thisTime].options.pause);
 
       // return this;
     },
@@ -175,7 +182,7 @@
         $(document).off('.fsPager' + val.time);
       });
 
-      params = new Array,
+      params.length = 0,
       time = '';
 
       return this;
@@ -196,11 +203,19 @@
         return params[thisTime].current === 0 ? params[thisTime].count - 1 : params[thisTime].current - 1;
       } else {
         if (params[thisTime].current !== 0) {
-          return params[time].current - 1;
+          return params[thisTime].current - 1;
         } else {
           return false;
         }
       }
+    },
+    updateParams: function(object, time) {
+      for (let key in object) {
+        params[time].options[key] = object[key];
+      }
+    },
+    getParams: function(time) {
+      return params[time];
     }
   };
 
