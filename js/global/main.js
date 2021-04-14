@@ -6,7 +6,7 @@
  * @category 	Application of AZLINK.
  * @author 		Norio Murata <nori@azlink.jp>
  * @copyright 	2010- AZLINK. <https://azlink.jp>
- * @final 		2020.09.07
+ * @final 		2020.11.15
  *
  * ================================================
  */
@@ -59,6 +59,73 @@ $.params = {
   rTimer: {}, // イベント制御用タイマー
   resizeTimer: false // イベント制御用タイマー
 };
+// jQuery不要なパラメータのセット
+const query = window.location.search.substring(1);
+const parms = query.split('&');
+let array = new Array;
+
+for (let i = 0; i < parms.length; i++) {
+  const pos = parms[i].indexOf('=');
+
+  if (pos > 0) {
+    const key = parms[i].substring(0, pos);
+    const val = parms[i].substring(pos +1);
+
+    $.params.qsParm[key] = val;
+  }
+}
+
+$.params.wHeight = parseInt(document.documentElement.clientHeight);
+$.params.wWidth = parseInt(document.documentElement.clientWidth);
+$.params.wIWidth = parseInt(window.innerWidth);
+$.params.wIHeight = parseInt(window.innerHeight);
+$.params.isRespMode = $.params.wIWidth < $.params.spBreakPoint ? true : false;
+$.params.orgMode = $.params.currentMode = $.params.isRespMode ? 2 : 1;
+
+$.params.ua = window.navigator.userAgent.toLowerCase();
+$.params.isIE = $.params.ua.indexOf('msie') >= 0 || $.params.ua.indexOf('trident') >= 0;
+
+if ($.params.isIE) {
+  a = /(msie|rv:?)\s?([\d\.]+)/.exec($.params.ua);
+  v = (a) ? a[2] : '';
+
+  $.params.isIE6 	= v.indexOf('6.', 0) === 0 ? true :false,
+  $.params.isIE7 	= v.indexOf('7.', 0) === 0 ? true :false,
+  $.params.isIE8 	= v.indexOf('8.', 0) === 0 ? true :false,
+  $.params.isIE9 	= v.indexOf('9.', 0) === 0 ? true :false,
+  $.params.isIE10 = v.indexOf('10.', 0) === 0 ? true :false,
+  $.params.isIE11 = v.indexOf('11.', 0) === 0 ? true :false;
+}
+
+$.params.isEdge = $.params.ua.indexOf('edge') >= 0;
+
+if (/*@cc_on!@*/false) {
+  $.params.userAgent = window.navigator.userAgent,
+  $.params.ua = window.navigator.userAgent.toLowerCase();
+
+  $.params.browserIE = 1;
+  $.params.browser_n = 'IE';
+
+  if ($.params.userAgent.match(/MSIE (¥d¥.¥d+)/)) {$.params.browser_v = parseFloat(RegExp.$1);}//IE6.7.8.9
+
+  }
+  else if ($.params.ua.indexOf('firefox') > -1) {$.params.browser_n = 'Firefox';}
+  else if ($.params.ua.indexOf('opera') > -1) {$.params.browser_n = 'Opera';}
+  else if ($.params.ua.indexOf('chrome') > -1) {$.params.browser_n = 'Chrome';}
+  else if ($.params.ua.indexOf('safari') > -1) {$.params.browser_n = 'Safari';}
+  else {
+  $.params.browser_n = 'Unknown';
+}
+
+$.params.ua = window.navigator.userAgent.toLowerCase();
+
+$.params.isiPhone 	= $.params.ua.indexOf('iphone') != -1 ? true : false,
+$.params.isiPad 	= $.params.ua.indexOf('ipad') != -1 || $.params.ua.indexOf('macintosh') != -1 && 'ontouchend' in document ? true : false,
+$.params.isiPod 	= $.params.ua.indexOf('ipod') != -1 ? true : false,
+$.params.isAndroid 	= $.params.ua.indexOf('android') != -1 || $.params.ua.indexOf('android') != -1 ? true : false,
+$.params.isWinPhone = $.params.ua.indexOf('windows phone') != -1 ? true : false;
+
+$.params.isMobile = $.params.isiPhone || $.params.isiPad || $.params.isiPod || $.params.isAndroid || $.params.isWinPhone ? true : false;
 /**
  * functions
  */
@@ -75,13 +142,13 @@ $.main = {
     // console.log('setWb' in params)
     params = typeof params === 'undefined' ? {} : params;
     const opts = {
-      setWb: 'setWb' in params && params.setWb === false ? false : true,
+      // setWb: 'setWb' in params && params.setWb === false ? false : true,
       setGETqs: 'setGETqs' in params && params.setGETqs === false ? false : true,
       checkRespMode: 'checkRespMode' in params && params.checkRespMode === false ? false : true,
-      setWbVer: 'setWbVer' in params && params.setWbVer === false ? false : true,
+      // setWbVer: 'setWbVer' in params && params.setWbVer === false ? false : true,
       sScroll: 'sScroll' in params && params.sScroll === false ? false : true,
       getScrPos: 'getScrPos' in params && params.getScrPos === false ? false : true,
-      getMobile: 'getMobile' in params && params.getMobile === false ? false : true,
+      // getMobile: 'getMobile' in params && params.getMobile === false ? false : true,
       roImg: 'roImg' in params && params.roImg === false ? false : true,
       roOpa: 'roOpa' in params && params.roOpa === false ? false : true,
       adjList: 'adjList' in params && params.adjList === false ? false : true,
@@ -90,27 +157,19 @@ $.main = {
       initDebug: 'initDebug' in params && params.initDebug === false ? false : true
     };
     // console.log(opts)
-    if (opts.setWb) $.main.setWb();
+    // if (opts.setWb) $.main.setWb();
     if (!opts.setGETqs === false) $.main.setGETqs();
     if (!opts.checkRespMode === false) $.main.checkRespMode();
-    if (!opts.setWbVer === false) $.main.setWbVer();
+    // if (!opts.setWbVer === false) $.main.setWbVer();
     if (!opts.sScroll === false) $.main.sScroll();
     if (!opts.getScrPos === false) $.main.getScrPos();
-    if (!opts.getMobile === false) $.main.getMobile();
+    // if (!opts.getMobile === false) $.main.getMobile();
     if (!opts.roImg === false) $.main.roImg();
     if (!opts.roOpa === false) $.main.roOpa();
     if (!opts.adjList === false) $.main.adjList();
     if (!opts.pageTop === false) $.main.pageTop();
     if (!opts.toggleSPTel === false) $.main.toggleSPTel();
     if (!opts.initDebug === false) $.main.initDebug();
-    $(window).on('resize.checkRespMode', function() {
-      if ($.params.rTimer.checkRespMode !== false) {
-				clearTimeout($.params.rTimer.checkRespMode);
-			}
-			$.params.rTimer.checkRespMode = setTimeout(function() {
-        if (!opts.checkRespMode === false) $.main.checkRespMode();
-			}, 250);
-  	});
     $(window).on('resize.checkRespMode', function() {
       if ($.params.rTimer.checkRespMode !== false) {
 				clearTimeout($.params.rTimer.checkRespMode);
@@ -180,7 +239,7 @@ $.main = {
 	 * デバッグ情報の出力
 	 */
 	showDebug: function() {
-		var src = '';
+		let src = '';
 
 		$.each($.params, function(key, val) {
 			src += '<div><span style="font-weight: bold;">' + key + '</span> : ' + val + '</div>';
@@ -211,20 +270,6 @@ $.main = {
 	 * @return GET値をセットしたグローバル変数qsParm
 	 */
 	setGETqs: function() {
-		var query = window.location.search.substring(1),
-			parms = query.split('&');
-
-		for (var i = 0; i < parms.length; i++) {
-			var pos = parms[i].indexOf('=');
-
-			if (pos > 0) {
-				var key = parms[i].substring(0, pos),
-					val = parms[i].substring(pos +1);
-
-				$.params.qsParm[key] = val;
-			}
-		}
-
 		return $.params.qsParm;
 	},
 	/**
@@ -363,26 +408,18 @@ $.main = {
 	/**
 	 * レスポンシブ状態のチェック
 	 * ※画面の内寸で比較するので要素がbody幅を超えている場合結果に注意
-	 * 　その場合は $.params.wWidth < $.params.spBreakPoint などで適宜比較する
+	 * その場合は $.params.wWidth < $.params.spBreakPoint などで適宜比較する
 	 */
 	checkRespMode: function() {
-		$.params.wIWidthCache 	= $.params.wIWidth;
-		$.params.wIHeightCache 	= $.params.wIHeight;
-		$.params.wHeight 		= parseInt($(window).height()),
-		$.params.wWidth 		= parseInt($(window).width()),
-		$.params.wIWidth 	= parseInt(window.innerWidth),
-		$.params.wIHeight 	= parseInt(window.innerHeight),
-		$.params.isRespMode 	= $.params.wIWidth < $.params.spBreakPoint ? true : false;
+    $.params.wHeight = parseInt(document.documentElement.clientHeight);
+    $.params.wWidth = parseInt(document.documentElement.clientWidth);
+    $.params.wIWidth = parseInt(window.innerWidth);
+    $.params.wIHeight = parseInt(window.innerHeight);
+    $.params.isRespMode = $.params.wIWidth < $.params.spBreakPoint ? true : false;
 
-		if ($.params.orgMode === null) {
-			$.params.orgMode = $.params.isRespMode ? 2 : 1;
-			$.params.currentMode = $.params.orgMode;
-      $.params.isChangeMode = $.params.orgMode !== $.params.currentMode ? true : false;
-		} else {
-			oldMode = $.params.currentMode;
-			$.params.currentMode = $.params.isRespMode ? 2 : 1;
-			$.params.isChangeMode = oldMode !== $.params.currentMode ? true : false;
-		}
+    oldMode = $.params.currentMode;
+    $.params.currentMode = $.params.isRespMode ? 2 : 1;
+    $.params.isChangeMode = oldMode !== $.params.currentMode ? true : false;
 
 		$('body').removeClass($.params.viewOriMode);
 		$.params.viewOriMode = $.params.wIHeight > $.params.wIWidth ? 'portrait' : 'landscape';
